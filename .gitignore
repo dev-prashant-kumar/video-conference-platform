@@ -1,0 +1,27 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# environment variables
+.env
+.env.local
+.env.*.local
+
+# Next.js
+.next/
+out/
+
+# build
+dist/
+build/
+
+# logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
