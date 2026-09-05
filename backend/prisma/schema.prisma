@@ -1,0 +1,97 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  ADMIN
+  INSTRUCTOR
+  STUDENT
+}
+
+enum ClassStatus {
+  SCHEDULED
+  LIVE
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         UserRole @default(STUDENT)
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  classes       Class[]
+  registrations Registration[]
+  attendance    Attendance[]
+}
+
+model Class {
+  id           Int         @id @default(autoincrement())
+  title        String
+  description  String?
+
+  instructorId Int
+  instructor   User        @relation(fields: [instructorId], references: [id])
+
+  scheduledAt  DateTime
+  duration     Int?
+
+  roomName     String      @unique
+  roomPassword String?
+
+  status       ClassStatus @default(SCHEDULED)
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  registrations Registration[]
+  attendance     Attendance[]
+  recordings     Recording[]
+}
+
+model Registration {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  classId      Int
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  class        Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
+
+  registeredAt DateTime @default(now())
+
+  @@unique([userId, classId])
+}
+
+model Attendance {
+  id       Int      @id @default(autoincrement())
+  userId   Int
+  classId  Int
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  class    Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
+
+  joinedAt DateTime  @default(now())
+  leftAt   DateTime?
+}
+
+model Recording {
+  id         Int      @id @default(autoincrement())
+  classId    Int
+
+  class      Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
+
+  fileUrl    String?
+  youtubeUrl String?
+  driveUrl   String?
+
+  createdAt  DateTime @default(now())
+}
