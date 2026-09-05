@@ -3,6 +3,9 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 
+import prisma from "./config/database";
+import authRoutes from "./routes/auth.routes";
+
 dotenv.config();
 
 const app = express();
@@ -17,11 +20,27 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-app.get("/api/health", (_req, res) => {
-  res.json({
-    success: true,
-    message: "Video Conference API is running",
-  });
+// Routes
+app.use("/api/auth", authRoutes);
+
+// Health check
+app.get("/api/health", async (_req, res) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+
+    res.json({
+      success: true,
+      message: "API and database are working",
+      database: "connected",
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      success: false,
+      message: "Database connection failed",
+    });
+  }
 });
 
 const PORT = process.env.PORT || 5000;
