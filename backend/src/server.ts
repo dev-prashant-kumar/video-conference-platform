@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 
 import prisma from "./config/database";
 import authRoutes from "./routes/auth.routes";
+import classRoutes from "./routes/class.routes";
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ app.use(cookieParser());
 
 // Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/classes", classRoutes);
 
 // Health check
 app.get("/api/health", async (_req, res) => {
