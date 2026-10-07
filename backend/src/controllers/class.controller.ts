@@ -570,6 +570,42 @@ export const getRegisteredClasses = async (
   }
 };
 
+// Add this inside your class.controller.ts file
+
+export const getInstructorClasses = async (req: AuthRequest, res: Response) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    const classes = await prisma.class.findMany({
+      where: {
+        instructorId: req.user.userId,
+      },
+      orderBy: {
+        scheduledAt: "desc",
+      },
+      include: {
+        instructor: {
+          select: { id: true, name: true, email: true },
+        },
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      count: classes.length,
+      classes,
+    });
+  } catch (error) {
+    console.error("Get instructor classes error:", error);
+    return res.status(500).json({ 
+      success: false, 
+      message: "Failed to fetch instructor classes" 
+    });
+  }
+};
+
 export const joinClass = async (
   req: AuthRequest,
   res: Response

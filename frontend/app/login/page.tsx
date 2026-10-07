@@ -20,12 +20,23 @@ export default function LoginPage() {
     setError("");
 
     try {
-      await axios.post(
+      const response = await axios.post(
         "http://localhost:5000/api/auth/login",
         { email, password },
         { withCredentials: true }
       );
-      router.push("/classes");
+
+      // Extract user role from backend response
+      const user = response.data.user;
+
+      // Smart Redirect based on user role
+      if (user?.role === "INSTRUCTOR") {
+        router.push("/instructor/"); // Adjust route if your folder structure differs
+      } else if (user?.role === "ADMIN") {
+        router.push("/admin/");
+      } else {
+        router.push("/classes"); // Student default route
+      }
     } catch (err: any) {
       console.error(err);
       setError(err.response?.data?.message || "Invalid email or password. Please try again.");
@@ -56,7 +67,7 @@ export default function LoginPage() {
               Welcome Back
             </h1>
             <p className="mt-2 text-sm text-slate-500">
-              Please enter your credentials to access your classes
+              Please enter your credentials to access your dashboard
             </p>
           </div>
 
@@ -97,7 +108,6 @@ export default function LoginPage() {
                 <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600">
                   Password
                 </label>
-                {/* Optional: Add Forgot Password link if needed */}
               </div>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">

@@ -1,12 +1,18 @@
 import { Router } from "express";
-
-import { cancelClass, createClass, getClassById, getRegisteredClasses, joinClass, registerForClass, updateClass } from "../controllers/class.controller";
+import { 
+  cancelClass, 
+  createClass, 
+  getClassById, 
+  getRegisteredClasses, 
+  joinClass, 
+  registerForClass, 
+  updateClass,
+  getClasses,
+  getInstructorClasses
+} from "../controllers/class.controller";
 
 import { protectRoute } from "../middleware/auth.middleware";
 import { authorizeRoles } from "../middleware/role.middleware";
-import {
-  getClasses,
-} from "../controllers/class.controller";
 
 const router = Router();
 
@@ -16,7 +22,16 @@ router.post(
   authorizeRoles("ADMIN", "INSTRUCTOR"),
   createClass
 );
+
 router.get("/", protectRoute, getClasses);
+
+// Dedicated endpoint for instructors to view their own classes
+router.get(
+  "/instructor",
+  protectRoute,
+  authorizeRoles("INSTRUCTOR", "ADMIN"),
+  getInstructorClasses
+);
 
 router.get(
   "/registered",
@@ -53,7 +68,5 @@ router.post(
   authorizeRoles("STUDENT"),
   registerForClass
 );
-
-
 
 export default router;
